@@ -1,8 +1,9 @@
 --Performs http operation if passed in correctly...
 local GetAlternativeAccounts = function(type, id, cb)
-    print('reached')
     if type == "discord" then
         PerformHttpRequest(string.format('https://ggs.sx/api/v3/fivem/association/discord/%s?api_token=%s', id, Config.GGSX_API_KEY), cb, "GET")
+    elseif type == "gtav" then
+        PerformHttpRequest(string.format('https://ggs.sx/api/v3/fivem/association/gtav/%s?api_token=%s', id, Config.GGSX_API_KEY), cb, "GET")
     end
 end
 
@@ -62,17 +63,25 @@ function ExtractIdentifiers(src)
     return identifiers
   end
 
+local ReturnType = function(player, type)
+    if type == "discord" then
+        return ExtractIdentifiers(player).discord:gsub("discord:", "")
+    elseif type == "gtav" then
+        return ExtractIdentifiers(player).license:gsub("license:", "")
+    end
+end
+
 ----- EVENTS ------
 local function OnPlayerConnecting(name, setKickReason, deferrals)
     deferrals.defer()
     local src = source
-    local identifier = ExtractIdentifiers(source).discord:gsub("discord:", "");
+    local identifier = ReturnType(src, Config.DetectionType)
 
     deferrals.update(string.format("[%s] -> Hi %s, We're checking if you have alt accounts banned.", Config.JoinMessage, name))
     
-    GetAlternativeAccounts("discord", "238235489432371201", function(err, responseText, headers)
+    GetAlternativeAccounts(Config.DetectionType, identifier, function(err, responseText, headers)
         local data = json.decode(responseText) -- decode json into data object
-        print(string.format('+ [GGS.SX] Identifier being read... %s', identifier))
+        print(string.format('[GGS.SX] Identifier being read... %s', identifier))
         if data[1] ~= nil then
             local gtavLicenses = json.decode(data[1].gta_v_license)
             CheckBanList(src, gtavLicenses, function(results)
