@@ -1,8 +1,3 @@
--- THIS MUST BE ABOVE ALL OTHER SCRIPTS
-client_script "@ic-carwash/SQxtXXJEoS-wtria8icpfpq58o7uop8.lua"
-server_script "@ic-carwash/dtLHXiFVuK-kp5k68n13fwjimlbpt4rg.lua"
-------------------------------------------
-
 fx_version 'cerulean'
 game 'gta5'
 
